@@ -1,0 +1,68 @@
+The LED CPU Monitor Project
+
+Kevin Cuzner
+
+
+
+Since I am using the V-USB driver under the GPL, this project will also
+be released under the GPL:
+
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
+
+
+
+At the moment, the host software will only work on Linux since it uses
+/proc/stat to measure CPU usage. A planned upgrade is to use SIGAR or
+something similar to get the CPU usage and make this cross platform. The
+firmware can be compiled and flashed by using make assuming that avrdude
+is installed on the computer that is doing the flashing. Some
+configration will be necessary if the microcontroller type or clock
+speed is increased.
+
+The host and firmware software use separate makefiles. To compile the
+firmware, run make in this directory. To compile the host software,
+change to the host/ directory and run make.
+
+The host software may be used by either running it as a normal program:
+  ./ledcpu
+or by running it as a daemon:
+  ./ledcpu -d
+It is up to the end user to decide to set up the host software to run
+on computer startup.
+
+If no host software is run on the computer, the firmware will go into an
+"idle" mode where it cycles through all the hue values in the HSV color
+space assuming saturation is full and value is full. The device will
+immediately exit this mode upon receiving a command from the host side
+software. Upon not receiving a command for several seconds, the firmware
+will again enter "idle" mode.
+
+The description of the files are as follows:
+ - src/main.c - Main source file for the firmware
+ - src/mixer.c - Source file for the LED color/pwm controller which is
+                 driven by the timer0 interrupt (this is set up in
+                 main.c)
+ - src/ledusb.c - Source file for the device-specific USB driver
+                  functions.
+ - include/mixer.h - Header for the mixing functions in src/mixer.c
+ - include/usbconfig.h - Contains the main configuration for the V-USB
+                         driver
+ - include/usbrequests.h - Contains the definitions for the usb requests
+ - host/main.c - Contains the source for the host side software
+ - host/opendevice.c - File that came with V-USB defining the functions
+                       for using libusb
+ - host/opendevice.h - Definitions for opendevice.c
